@@ -1,25 +1,37 @@
 import os
 import requests
 from PIL import Image
-from transformers import Blip2Processor, Blip2ForConditionalGeneration
+from transformers import AutoProcessor, Blip2ForConditionalGeneration
 import matplotlib.pyplot as plt
 import torch
 
-def describe_images_blip(image_files):
-    processor = Blip2Processor.from_pretrained("Salesforce/blip2-opt-2.7b")
-    model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b", device_map="auto")
+def describe_images_blip(image_files, query="What’s in this image? split features with '\n'"):
+    processor = AutoProcessor.from_pretrained("Salesforce/blip2-opt-2.7b")
+    model = Blip2ForConditionalGeneration.from_pretrained("Salesforce/blip2-opt-2.7b", torch_dtype=torch.float16)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    model.to(device)
+
     
     descriptions = []
     
-    for image_file in image_files:
+    for i,image_file in enumerate(image_files):
         raw_image = Image.open(image_file).convert('RGB')
-        question = "Describe all the notable and interesting features of this house."
-        inputs = processor(raw_image, question, return_tensors="pt").to("cuda", torch.float16)
+        if isinstance(query,list):
+            question = f"Question: {query[i]} (yes or no) Answer: "
+        else:
+            question = f"Question: {query} Answer: "
+        # inputs = processor(image, return_tensors="pt").to(device, torch.float16)
+
+        # generated_ids = model.generate(**inputs, max_new_tokens=20)
+        # generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
+        # print(generated_text)
+        inputs = processor(raw_image, text=question, return_tensors="pt").to("cuda", torch.float16)
 
 
-        out = model.generate(**inputs)
-        description = processor.decode(out[0], skip_special_tokens=True)
-        descriptions.append((image_file, description))
+        generated_ids = model.generate(**inputs,max_length=100)
+        generated_text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0].strip()
+        descriptions.append((image_file, generated_text))
+        print(generated_ids,generated_text)
     
     return descriptions
 

@@ -11,7 +11,7 @@ def encode_image(image_path):
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 # Function to get image descriptions using OpenAI API
-def describe_images_openai(image_files):
+def describe_images_openai(image_files,query="What’s in this image? split features with '\n'"):
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
     headers = {
@@ -20,8 +20,12 @@ def describe_images_openai(image_files):
     }
     descriptions = []
 
-    for image_file in image_files:
+    for i,image_file in enumerate(image_files):
         base64_image = encode_image(image_file)
+        if isinstance(query,list):
+            question = f"Question: {query[i]} (yes or no) Answer: "
+        else:
+            question = f"Question: {query} Answer: "
         payload = {
             "model": "gpt-4o-mini",
             "messages": [
@@ -30,7 +34,7 @@ def describe_images_openai(image_files):
                     "content": [
                         {
                             "type": "text",
-                            "text": "What’s in this image? split features with '\n'"
+                            "text": question,
                         },
                         {
                             "type": "image_url",

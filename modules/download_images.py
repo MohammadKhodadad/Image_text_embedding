@@ -15,7 +15,11 @@ def download_images(directory='./images'):
         'https://cdn.repliers.io/IMG-Z8083610_6.jpg?class=large',
         'https://cdn.repliers.io/IMG-W9235941_17.jpg?class=large',
         'https://cdn.repliers.io/IMG-W9018907_11.jpg?class=large',
-        'https://cdn.repliers.io/IMG-W9018907_23.jpg?class=large'
+        'https://cdn.repliers.io/IMG-W9018907_23.jpg?class=large',
+        'https://cdn.repliers.io/IMG-W9052988_2.jpg?class=large',
+        'https://cdn.repliers.io/IMG-W9052988_5.jpg?class=large',
+        'https://cdn.repliers.io/IMG-C9051345_2.jpg?class=large',
+        'https://cdn.repliers.io/IMG-W8342790_3.jpg?class=large',
 
 
     ]
